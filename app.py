@@ -1,6 +1,8 @@
 import pickle
+from typing import Optional
+
 import pandas as pd
-from fastapi import FastAPI, Depends, status, Request, Form
+from fastapi import FastAPI, Depends, status, Request, Form, Query
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session, selectinload
@@ -142,7 +144,6 @@ async def create_patients(request: Request, name: str = Form(...), age: int = Fo
         created_at=now()
     )
     # Prepaparation des données
-    # ,Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age
     data = pd.DataFrame([{
         "Pregnancies": 1,
         "Glucose": glucose,
@@ -154,9 +155,6 @@ async def create_patients(request: Request, name: str = Form(...), age: int = Fo
         "Age": age
 
     }])
-
-    # Le cluster dont les moyennes des variables Glucose (>126),
-    # BMI (>30) et Diabetes Pedigree Function (>0,5) dépassent les seuils critiques peut être interprété comme à haut risque de diabète.
     # Faire la prédiction
     prediction = modele.predict(data)
 
@@ -187,7 +185,6 @@ async def create_patients(request: Request, name: str = Form(...), age: int = Fo
             'status': "success",
             'message': f"Ce patient est {status_risque}"
         }
-    # return RedirectResponse(url="/patients/create", status_code=status.HTTP_201_CREATED)
         return template.TemplateResponse("/patients/create.html", {
             "request": request,
             "glucose": glucose,
@@ -203,12 +200,25 @@ async def create_patients(request: Request, name: str = Form(...), age: int = Fo
 # Tableau patients
 @app.get("/patients/index", response_class=HTMLResponse, tags=['patients'])
 @login_required
-async def index_patients(request: Request, db: Session = Depends(get_db)):
-    patients = db.query(models.Patient).options(selectinload(Patient.predictions)).order_by(models.Patient.doctorid).all()
-    print(patients)
+async def index_patients(request: Request, search:Optional[str] = Query(None, description="Mot-clé de la recherche"), db: Session = Depends(get_db)):
+    query = db.query(models.Patient).options(selectinload(Patient.predictions)).order_by(models.Patient.doctorid)
+    if search:
+        query = (
+            db.query(models.Patient)
+                 .join(models.Patient.predictions)
+                 .filter(models.Prediction.result.ilike(f"%{search}%"))
+        )
+    patients = query.all()
+    num_diabetique = db.query(models.Patient).join(models.Patient.predictions).filter(models.Prediction.result == "diabétique").count()
+    num_total_patient = db.query(models.Patient).options(selectinload(Patient.predictions)).order_by(models.Patient.doctorid).count()
+    print(num_diabetique, num_total_patient)
+    pourcentage_diabetique = (num_diabetique * 100)/num_total_patient
+    print(int(pourcentage_diabetique))
+
     success = request.session.pop("success", None)
+
     return template.TemplateResponse("/patients/index.html",
-                                     {'request': request, "patients": patients, "success": success})
+                                     {'request': request, "patients": patients, "pourcentage":int(pourcentage_diabetique),"success": success})
 
 
 # logout
@@ -244,3 +254,4 @@ async def delete(request: Request, id: int, db: Session = Depends(get_db)):
             "message": "Patient deleted with success"
         }
     return RedirectResponse(url="/patients/index", status_code=status.HTTP_303_SEE_OTHER)
+

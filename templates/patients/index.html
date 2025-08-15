@@ -11,9 +11,9 @@
 {% include "components/navbar.html" %}
 <div class="container-fluid">
     <div class="w-80 m-auto container mt-5">
-        <div class="mb-5 d-flex justify-content-between">
-            <h1>Listes des Patients</h1>
-            <a class="btn btn-sm btn-primary" href="/patients/create">Create</a>
+        <div class="mb-5 bg-success p-3 d-flex justify-content-between">
+            <h1 class="text-white">Listes des Patients</h1>
+            <a class="btn btn-sm btn-primary" role="button" href="/patients/create">Create</a>
         </div>
         {% if success %}
         <div class="alert alert-success" role="alert">
@@ -29,6 +29,15 @@
         </div>
         {% endif %}
         <table class="table table-bordered">
+            <div class="d-flex justify-content-between">
+                <p class="fs-5 text-primary" >{{pourcentage}}% des patients sont diabétiques</p>
+                <form action="/patients/index" method="get">
+                    <div class="form-group d-flex my-2">
+                        <input type="text" name="search" value="{{ request.query_params.get('search') or '' }}" class="form-control me-2" >
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+            </div>
             <thead>
             <tr>
                 <th>ID</th>
@@ -46,6 +55,7 @@
             </tr>
             </thead>
             <tbody>
+            {% if patients %}
             {% for patient in patients %}
             <tr>
                 <td>{{patient.id}}</td>
@@ -76,6 +86,7 @@
                 </td>
             </tr>
             {% endfor %}
+            {% endif %}
             </tbody>
         </table>
     </div>
