@@ -11,28 +11,33 @@
 <body>
 <div class="container w-50 m-auto my-5">
     <h1 class="text-center">Register</h1>
+    {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <div class="text-center">{{error.message}}</div>
+            </div>
+    {% endif %}
     <form action="/register" method="post">
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">UserName</label>
             <input type="text" name="username" class="form-control" id="exampleInputEmail1"
-                   aria-describedby="emailHelp">
+                   aria-describedby="emailHelp" >
         </div>
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Adresse</label>
             <input type="text" name="adresse" class="form-control" id="exampleInputEmail1"
-                   aria-describedby="emailHelp">
+                   aria-describedby="emailHelp" >
         </div>
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" >
         </div>
         <div class="mb-3">
             <label for="exampleInputPassword1" class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+            <input type="password" name="password" class="form-control" id="exampleInputPassword1" >
         </div>
         <div class="mb-3">
             <label for="exampleInputPassword1" class="form-label">Confirmation Password</label>
-            <input type="password" name="confirm_password" class="form-control" id="exampleInputPassword1">
+            <input type="password" name="confirm_password" class="form-control" id="exampleInputPassword1" >
         </div>
         <div class="mb-3 form-check d-flex justify-content-end">
             <label class="form-check-label" ><a class="text-decoration" href="/login">Veuillez-vous connecter</a></label>

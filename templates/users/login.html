@@ -11,6 +11,19 @@
 <body>
 <div class="container w-50 m-auto my-5">
     <h1 class="text-center">Login</h1>
+    {% if success %}
+    <div class="alert alert-success" role="alert">
+        <div class="text-center">{{success.message}}</div>
+    </div>
+    {% elif error %}
+    <div class="alert alert-danger" role="alert">
+        <div class="text-center">{{error.message}}</div>
+    </div>
+    {% elif success_logout %}
+    <div class="alert alert-success" role="alert">
+        <div class="text-center">{{success_logout.message}}</div>
+    </div>
+    {% endif %}
     <form action="/login" method="post">
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email</label>
@@ -21,8 +34,9 @@
             <input type="password" name="password" class="form-control" id="exampleInputPassword1">
         </div>
         <div class="mb-3 form-check d-flex justify-content-end">
-            <label class="form-check-label" ><a class="text-decoration" href="/register">Veuillez-vous enregister</a></label>
-          </div>
+            <label class="form-check-label"><a class="text-decoration" href="/register">Veuillez-vous
+                enregister</a></label>
+        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
